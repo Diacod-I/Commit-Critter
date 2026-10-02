@@ -1,0 +1,20 @@
+# Copy this to .github/workflows/commit-critter.yml in your profile repo (github.com/<you>/<you>)
+name: Commit Critter
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # once a day; pick a time that's mid-day where you live (this is 12:00 IST)
+  workflow_dispatch:        # adds a "Run workflow" button
+
+permissions:
+  contents: write
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Diacod-I/commit-critter@v1
+        with:
+          species: snail        # snail, crab, cat, or slime
+          # pet-name: Pebble

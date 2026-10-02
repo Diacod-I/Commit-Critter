@@ -1,0 +1,49 @@
+name: Commit Critter
+description: A tiny pet that lives in your README and is fed daily by your real GitHub activity.
+author: Advith Krishnan
+branding:
+  icon: heart
+  color: green
+
+inputs:
+  species:
+    description: "Which critter: snail, crab, cat, or slime"
+    default: snail
+  pet-name:
+    description: "Your critter's name (defaults to one per species)"
+    default: ""
+  readme:
+    description: "README file to draw the critter in"
+    default: README.md
+  github-user:
+    description: "Whose activity feeds the critter (defaults to the repo owner)"
+    default: ""
+  author-name:
+    description: "Commit author name (defaults to your GitHub display name)"
+    default: ""
+  author-email:
+    description: "Commit author email (defaults to your id+login noreply address, which always counts)"
+    default: ""
+  token:
+    description: "Token used to read your public activity and push"
+    default: ${{ github.token }}
+  push:
+    description: "Push the commits (set false to dry-run)"
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Feed the critter
+      shell: bash
+      env:
+        CRITTER_SPECIES: ${{ inputs.species }}
+        CRITTER_NAME: ${{ inputs.pet-name }}
+        CRITTER_README: ${{ inputs.readme }}
+        CRITTER_USER: ${{ inputs.github-user }}
+        CRITTER_AUTHOR_NAME: ${{ inputs.author-name }}
+        CRITTER_AUTHOR_EMAIL: ${{ inputs.author-email }}
+        CRITTER_TOKEN: ${{ inputs.token }}
+        CRITTER_PUSH: ${{ inputs.push }}
+        CRITTER_ACTION_REPO: ${{ github.action_repository }}
+      run: bash "$GITHUB_ACTION_PATH/run.sh"

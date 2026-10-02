@@ -1,0 +1,33 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m unittest discover -v tests
+
+  # Runs the real action against this repo's checkout, without pushing.
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        species: [snail, crab, cat, slime]
+    steps:
+      - uses: actions/checkout@v5
+      - run: printf '# Test profile\n' > TEST_README.md
+      - uses: ./
+        with:
+          species: ${{ matrix.species }}
+          readme: TEST_README.md
+          push: "false"
+      - name: Check the critter was drawn and committed
+        run: |
+          grep -q "COMMIT-CRITTER:START" TEST_README.md
+          grep -q "the ${{ matrix.species }}" TEST_README.md
+          git log --oneline -3
+          cat TEST_README.md
