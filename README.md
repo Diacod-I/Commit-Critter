@@ -4,7 +4,10 @@ A tiny pet that lives in your GitHub README and eats your real GitHub activity.
 
 Once a day, a GitHub Action visits your critter and feeds it whatever you actually did on GitHub in the last 24 hours: pushes, PRs, reviews, issues. Do real work and it thrives. Skip a few days and it gets hungry, and everyone visiting your profile can see it.
 
-<img src="assets/card.svg" width="576" alt="Pebble the snail, feeling ecstatic. Fullness 10/10, ate 6 today, real-work streak 12d (best 12d), age 40d.">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-dark.svg">
+  <img src="assets/card.svg" width="576" alt="Pebble the snail, feeling ecstatic. Fullness 10/10, ate 6 today, real-work streak 12d (best 12d), age 40d.">
+</picture>
 
 ---
 
@@ -29,6 +32,7 @@ jobs:
       - uses: Diacod-I/commit-critter@v1
         with:
           species: snail   # snail, crab, cat, or slime
+          # theme: dark    # light (default) or dark
 ```
 
 3. On the **Actions** tab, click **Commit Critter → Run workflow** to hatch it.
@@ -57,6 +61,7 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 | input | default | |
 |---|---|---|
 | `species` | `snail` | `snail`, `crab`, `cat`, `slime` |
+| `theme` | `light` | `light` or `dark` card colours; `dark` sits well next to dark stat widgets |
 | `pet-name` | per species | Pebble, Clawdia, Biscuit, Gloop |
 | `readme` | `README.md` | which file to draw in |
 | `github-user` | repo owner | whose activity feeds it |

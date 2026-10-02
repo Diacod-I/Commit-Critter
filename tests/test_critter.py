@@ -69,6 +69,22 @@ class CritterTest(unittest.TestCase):
         self.assertNotIn("No trophies yet", trophies)
         self.assertEqual(trophies.count("🏆"), 1)
 
+    def test_dark_theme(self):
+        os.environ["CRITTER_THEME"] = "dark"
+        try:
+            c, _ = self.run_day("2026-01-01", 1)
+        finally:
+            del os.environ["CRITTER_THEME"]
+        self.assertIn(c.sprites.PANEL["dark"]["F"], Path(".critter/critter.svg").read_text())
+
+    def test_unknown_theme_falls_back_to_light(self):
+        os.environ["CRITTER_THEME"] = "neon"
+        try:
+            c, _ = self.run_day("2026-01-01", 1)
+        finally:
+            del os.environ["CRITTER_THEME"]
+        self.assertIn(c.sprites.PANEL["light"]["F"], Path(".critter/critter.svg").read_text())
+
     def test_trophies_page_exists_from_day_one(self):
         self.run_day("2026-01-01", 1)
         self.assertIn("No trophies yet", Path(".critter/trophies.md").read_text())

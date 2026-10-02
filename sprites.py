@@ -20,12 +20,22 @@ SHARED = {
 }
 
 MOOD_STYLE = {
-    #            card bg    ground     grass
-    "ecstatic": ("#fff4c9", "#f1d98a", "#d9b95a"),
-    "happy":    ("#e3f6e5", "#b9e2bf", "#8fc99a"),
-    "meh":      ("#eceff4", "#d3d8e2", "#b4bbc9"),
-    "hungry":   ("#ffe9da", "#f3cbb0", "#dba98a"),
-    "starving": ("#e6e4ea", "#cbc8d1", "#aaa6b2"),
+    "light": {
+        #            card bg    ground     grass
+        "ecstatic": ("#fff4c9", "#f1d98a", "#d9b95a"),
+        "happy":    ("#e3f6e5", "#b9e2bf", "#8fc99a"),
+        "meh":      ("#eceff4", "#d3d8e2", "#b4bbc9"),
+        "hungry":   ("#ffe9da", "#f3cbb0", "#dba98a"),
+        "starving": ("#e6e4ea", "#cbc8d1", "#aaa6b2"),
+    },
+    # One Dark-ish, to sit with the usual dark README widgets (stats cards, 3D graphs).
+    "dark": {
+        "ecstatic": ("#3b3527", "#4d4430", "#6b5d3a"),
+        "happy":    ("#263329", "#2f4234", "#46604c"),
+        "meh":      ("#2c313a", "#363c47", "#4b5263"),
+        "hungry":   ("#3a2d27", "#4a3830", "#664c40"),
+        "starving": ("#2e2b33", "#38343e", "#4e4957"),
+    },
 }
 
 # Face pieces. Lowercase 'l' = the species' shade colour (eyelids, cheeks).
@@ -171,7 +181,9 @@ TWINKLE = ".tw{animation:tw 1s steps(1) infinite}.tw2{animation-delay:-.5s}@keyf
 # ---------------------------------------------------------------- stats panel
 # Drawn at half scale (2 font pixels per art pixel), in a tiny pixel font.
 
-PANEL_X, PANEL_W = 42, 54   # art pixels; the card grows to the right of the sprite
+# Card layout, in art pixels: | margin | scene window | gap | stats text | margin |
+MARGIN, GAP, TEXT_W = 2, 3, 49
+CARD_W, CARD_H = MARGIN + W + GAP + TEXT_W + MARGIN, MARGIN + H + MARGIN
 FONT = {
     "A": [".#.", "#.#", "###", "#.#", "#.#"], "B": ["##.", "#.#", "##.", "#.#", "##."],
     "C": [".##", "#..", "#..", "#..", ".##"], "D": ["##.", "#.#", "#.#", "#.#", "##."],
@@ -195,9 +207,15 @@ FONT = {
     "?": ["##.", "..#", ".#.", "...", ".#."], "-": ["...", "...", "###", "...", "..."],
     "'": ["#", "#", ".", ".", "."], ":": [".", "#", ".", "#", "."], "/": ["..#", "..#", ".#.", "#..", "#.."],
 }
-PANEL = {"K": OUTLINE, "k": "#7a7287", "H": "#ff5d8f", "h": "#d8d2de", "F": "#ffffff"}
-MOOD_INK = {"ecstatic": "#c98a00", "happy": "#2f9a52", "meh": "#6b7285",
-            "hungry": "#d9662b", "starving": "#8a5aa8"}
+PANEL = {
+    "light": {"K": OUTLINE, "k": "#7a7287", "H": "#ff5d8f", "h": "#ddd7e3", "F": "#fdfbff", "f": "#e2dce8"},
+    "dark":  {"K": "#e6e1ec", "k": "#9da5b4", "H": "#ff6b9a", "h": "#454b57", "F": "#21252b", "f": "#3a3f4b"},
+}
+MOOD_INK = {
+    "light": {"ecstatic": "#c98a00", "happy": "#2f9a52", "meh": "#6b7285", "hungry": "#d9662b", "starving": "#8a5aa8"},
+    "dark":  {"ecstatic": "#e5c07b", "happy": "#98c379", "meh": "#abb2bf", "hungry": "#e8935c", "starving": "#c678dd"},
+}
+THEMES = tuple(PANEL)
 HEART_ICON = [".##.##.", "#######", "#######", ".#####.", "..###..", "...#..."]
 
 
@@ -213,22 +231,19 @@ def _text(layer, x, y, text, ink):
     return x
 
 
-def _panel(stats, mood):
-    """Stats panel pixels, in half-scale units, and the colours they use."""
+def _panel(stats, mood, theme):
+    """Stats text pixels, in half-scale units, and the colours they use."""
     px = {}
-    left, top, width = PANEL_X * 2, 4, PANEL_W * 2 - 4
-    x0, inner = left + 6, width - 12
-    _stamp(px, ["F" * width] * 44, left, top)
-    for x in range(left, left + width):  # outline, rounded by skipping the corners
-        px[(x, top - 1)] = px[(x, top + 44)] = "K"
-    for y in range(top, top + 44):
-        px[(left - 1, y)] = px[(left + width, y)] = "K"
+    x0, inner = (MARGIN + W + GAP) * 2, (TEXT_W - 1) * 2
+    top = (CARD_H * 2 - 42) // 2         # the text block is 42 half-pixels tall
 
     name, species = stats["name"].upper(), f"THE {stats['species'].upper()}"
     while _text_width(f"{name} {species}") > inner and len(name) > 1:
         name = name[:-1].rstrip()
-    _text(px, _text(px, x0, top + 4, name, "K") + 3, top + 4, species, "k")
-    _text(px, x0, top + 12, mood.upper(), "M")
+    _text(px, _text(px, x0, top, name, "K") + 3, top, species, "k")
+    _text(px, x0, top + 8, mood.upper(), "M")
+    for x in range(x0, x0 + inner, 2):   # dotted divider
+        px[(x, top + 16)] = "h"
 
     full = 10 - stats["hunger"]          # 0..10, shown as five hearts that can be half full
     x = _text(px, x0, top + 21, "FULL", "k") + 3
@@ -243,9 +258,9 @@ def _panel(stats, mood):
         for label, value in pairs:
             x = _text(px, _text(px, x, y, label, "k") + 2, y, value, "K") + 6
 
-    line(top + 30, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
-    line(top + 38, ("AGE", f"{stats['age']}D"), ("ATE TODAY", str(stats["food_today"])))
-    return px, {**PANEL, "M": MOOD_INK[mood]}
+    line(top + 29, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
+    line(top + 37, ("AGE", f"{stats['age']}D"), ("ATE TODAY", str(stats["food_today"])))
+    return px, {**PANEL[theme], "M": MOOD_INK[theme][mood]}
 
 
 def _grey(hex_colour, amount):
@@ -288,7 +303,7 @@ def _rects(pixels, colours):
     return "".join(out)
 
 
-def svg(species, mood, title="", stats=None):
+def svg(species, mood, title="", stats=None, theme="light"):
     sp = SPECIES[species]
     body = sp["body"]
     w, h = max(map(len, body)), len(body)
@@ -324,7 +339,7 @@ def svg(species, mood, title="", stats=None):
     # Effects float around the sprite, outside the bobbing group so they don't jitter with it.
     fx, fx2 = {}, {}
     if mood == "ecstatic":
-        _stamp(fx, HEART, ox - 8, oy - 1)
+        _stamp(fx, HEART, max(ox - 8, 1), oy - 1)
         _stamp(fx2, SPARKLE, ox + w + 2, oy - 3)
         _stamp(fx, SPARKLE, ox + w + 4, oy + 6)
     elif mood == "meh":
@@ -335,7 +350,7 @@ def svg(species, mood, title="", stats=None):
     elif mood == "starving":
         _stamp(fx, CLOUD, ox + w - 4, max(oy - 7, 0))
 
-    bg, ground, grass = MOOD_STYLE[mood]
+    bg, ground, grass = MOOD_STYLE[theme][mood]
     shadow_w = w - 4
     css = ANIM[mood] + (BLINK if mood in ("happy", "meh", "hungry") else "")
     css += TWINKLE if fx else ""
@@ -347,28 +362,35 @@ def svg(species, mood, title="", stats=None):
         attr = f' class="{cls}"' if cls else ""
         return f"<g{attr}>{_rects(pixels, palette)}</g>"
 
-    width, panel = W, ""
-    if stats:
-        width = PANEL_X + PANEL_W
-        panel_px, panel_colours = _panel(stats, mood)
-        panel = f'<g transform="scale(.5)">{_rects(panel_px, panel_colours)}</g>'
-
     blinks = mood in ("happy", "meh", "hungry")
     eyes = group(open_eyes, "open" if blinks else "") + (group(shut_eyes, "shut") if blinks else "")
     tufts = "".join(f'<rect x="{x}" y="{GROUND - 1}" width="1" height="1" fill="{grass}"/>'
                     f'<rect x="{x + 1}" y="{GROUND - 2}" width="1" height="2" fill="{grass}"/>'
                     for x in (3, 12, 30, 35))
 
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {H}" '
-        f'width="{width * SCALE}" height="{H * SCALE}" shape-rendering="crispEdges">'
-        + (f"<title>{escape(title)}</title>" if title else "")
-        + f"<style>{css}</style>"
-        f'<rect width="{width}" height="{H}" rx="2" fill="{bg}"/>'
-        f'<rect y="{GROUND}" width="{width}" height="{H - GROUND}" fill="{ground}"/>'
+    scene = (
+        f'<rect width="{W}" height="{H}" rx="2" fill="{bg}"/>'
+        f'<rect y="{GROUND}" width="{W}" height="{H - GROUND}" fill="{ground}"/>'
         f"{tufts}"
         f'<rect x="{ox + 2}" y="{GROUND}" width="{shadow_w}" height="1" fill="{OUTLINE}" opacity=".18"/>'
         f'<g class="bob">{group(sprite)}{group(face)}{eyes}</g>'
-        f'{group(fx, "tw")}{group(fx2, "tw tw2")}{panel}'
-        "</svg>\n"
+        f'{group(fx, "tw")}{group(fx2, "tw tw2")}'
+    )
+    width, height, body = W, H, scene
+    if stats:
+        width, height = CARD_W, CARD_H
+        panel_px, panel_colours = _panel(stats, mood, theme)
+        body = (
+            f'<rect x=".2" y=".2" width="{width - .4}" height="{height - .4}" rx="3" '
+            f'fill="{panel_colours["F"]}" stroke="{panel_colours["f"]}" stroke-width=".4"/>'
+            f'<clipPath id="scene"><rect width="{W}" height="{H}" rx="2"/></clipPath>'
+            f'<g transform="translate({MARGIN} {MARGIN})" clip-path="url(#scene)">{scene}</g>'
+            f'<g transform="scale(.5)">{_rects(panel_px, panel_colours)}</g>'
+        )
+
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+        f'width="{width * SCALE}" height="{height * SCALE}" shape-rendering="crispEdges">'
+        + (f"<title>{escape(title)}</title>" if title else "")
+        + f"<style>{css}</style>{body}</svg>\n"
     )
