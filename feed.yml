@@ -1,0 +1,38 @@
+name: feed the snail
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # 12:00 IST, safely mid-day in both UTC and IST
+  workflow_dispatch:        # "Run workflow" button for testing
+
+permissions:
+  contents: write
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    env:
+      GH_USER: ${{ github.repository_owner }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Commits only show on your graph if the author email is verified on your account.
+      - name: Commit as you
+        run: |
+          git config user.name  "${{ vars.GIT_NAME }}"
+          git config user.email "${{ vars.GIT_EMAIL }}"
+
+      - name: "Commit 1: feed"
+        run: python pet.py feed && git add -A && (git diff --cached --quiet || git commit -F .msg)
+
+      - name: "Commit 2: diary"
+        run: python pet.py diary && git add -A && (git diff --cached --quiet || git commit -F .msg)
+
+      - name: "Commit 3: trophy (milestone days only)"
+        run: python pet.py trophy && git add -A && (git diff --cached --quiet || git commit -F .msg)
+
+      - run: git push
