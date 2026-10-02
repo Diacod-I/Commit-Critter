@@ -34,6 +34,7 @@ ACTION_REPO = ENV("CRITTER_ACTION_REPO") or "Diacod-I/commit-critter"
 TODAY = ENV("CRITTER_TODAY") or dt.datetime.now(dt.timezone.utc).date().isoformat()
 MSG = Path(".critter-msg")
 START, END = "<!-- COMMIT-CRITTER:START -->", "<!-- COMMIT-CRITTER:END -->"
+NO_TROPHIES = "_No trophies yet. The first one comes after 7 days of real work in a row._\n"
 
 # ---------------------------------------------------------------- species
 
@@ -171,6 +172,9 @@ def render(s):
     stats = {"name": pet_name(), "species": species(), "hunger": s["hunger"], "food_today": s["food_today"],
              "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"]}
     (HOME / "critter.svg").write_text(sprites.svg(species(), mood(s), title=describe(s), stats=stats))
+    trophies = HOME / "trophies.md"
+    if not trophies.exists():  # the README links here from day one
+        trophies.write_text("# Trophies\n\n" + NO_TROPHIES)
     text = README.read_text() if README.exists() else ""
     new = block(s)
     if START in text and END in text:
@@ -254,7 +258,7 @@ def trophy():
     if not got or f"- {TODAY}" in text:
         return msg("")
     HOME.mkdir(exist_ok=True)
-    p.write_text(text + f"- {TODAY} · 🏆 {got}\n")
+    p.write_text(text.replace(NO_TROPHIES, "") + f"- {TODAY} · 🏆 {got}\n")
     msg(f"🏆 trophy: {got}")
 
 
