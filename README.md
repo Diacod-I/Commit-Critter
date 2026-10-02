@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Commit-Critter
 
 A pet that lives in this README. A bot visits every day at noon IST and feeds it
@@ -121,4 +120,3 @@ python3 -m unittest discover -v tests
 ## License
 
 MIT
->>>>>>> 1da4b5a (Release commit-critter v1)
