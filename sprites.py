@@ -339,9 +339,10 @@ def svg(species, mood, title="", stats=None, theme="light"):
     # Effects float around the sprite, outside the bobbing group so they don't jitter with it.
     fx, fx2 = {}, {}
     if mood == "ecstatic":
-        _stamp(fx, HEART, max(ox - 8, 1), oy - 1)
-        _stamp(fx2, SPARKLE, ox + w + 2, oy - 3)
-        _stamp(fx, SPARKLE, ox + w + 4, oy + 6)
+        # Wide sprites leave no room beside them, so the heart floats up into the corner instead.
+        _stamp(fx, HEART, *((ox - 8, oy - 1) if ox >= 9 else (1, oy - 6)))
+        _stamp(fx2, SPARKLE, min(ox + w + 2, W - 6), oy - 3)
+        _stamp(fx, SPARKLE, min(ox + w + 4, W - 6), oy + 6)
     elif mood == "meh":
         _stamp(fx, ZZ, ox + w + 1, oy)
         _stamp(fx2, ZZ, ox + w + 4, oy - 4)
