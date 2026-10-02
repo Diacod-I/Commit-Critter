@@ -9,6 +9,9 @@ inputs:
   species:
     description: "Which critter: snail, crab, cat, or slime"
     default: snail
+  theme:
+    description: "Card colours: light or dark"
+    default: light
   pet-name:
     description: "Your critter's name (defaults to one per species)"
     default: ""
@@ -39,6 +42,7 @@ runs:
       env:
         CRITTER_SPECIES: ${{ inputs.species }}
         CRITTER_NAME: ${{ inputs.pet-name }}
+        CRITTER_THEME: ${{ inputs.theme }}
         CRITTER_README: ${{ inputs.readme }}
         CRITTER_USER: ${{ inputs.github-user }}
         CRITTER_AUTHOR_NAME: ${{ inputs.author-name }}

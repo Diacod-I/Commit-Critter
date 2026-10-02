@@ -98,6 +98,14 @@ def species():
     return s
 
 
+def theme():
+    t = (ENV("CRITTER_THEME") or "light").strip().lower()
+    if t not in sprites.THEMES:
+        warn(f"unknown theme '{t}', using light. Options: {', '.join(sprites.THEMES)}")
+        t = "light"
+    return t
+
+
 def pet_name():
     return (ENV("CRITTER_NAME") or "").strip() or SPECIES[species()]["default_name"]
 
@@ -171,7 +179,7 @@ def render(s):
     HOME.mkdir(exist_ok=True)
     stats = {"name": pet_name(), "species": species(), "hunger": s["hunger"], "food_today": s["food_today"],
              "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"]}
-    (HOME / "critter.svg").write_text(sprites.svg(species(), mood(s), title=describe(s), stats=stats))
+    (HOME / "critter.svg").write_text(sprites.svg(species(), mood(s), title=describe(s), stats=stats, theme=theme()))
     trophies = HOME / "trophies.md"
     if not trophies.exists():  # the README links here from day one
         trophies.write_text("# Trophies\n\n" + NO_TROPHIES)
@@ -269,7 +277,9 @@ def preview():
         for m in MOODS:
             (out / f"{sp}-{m}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}"))
     demo = {"name": "Pebble", "species": "snail", "hunger": 0, "food_today": 6, "streak": 12, "best": 12, "age": 40}
-    (out / "card.svg").write_text(sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo))
+    for th in sprites.THEMES:
+        name = "card.svg" if th == "light" else f"card-{th}.svg"
+        (out / name).write_text(sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo, theme=th))
 
 
 if __name__ == "__main__":
