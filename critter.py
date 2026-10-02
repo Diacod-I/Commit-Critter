@@ -39,11 +39,11 @@ SPECIES = {
     "snail": {
         "default_name": "Pebble",
         "art": {
-            "ecstatic": "     \\(^o^)/\n   @  ~~~~~~~>   *zooms at 0.03 km/h*",
-            "happy":    "       (o.o)\n   @  ~~~~~~~>",
-            "meh":      "       (-_-)\n   @  ~~~~~~~>   ...",
-            "hungry":   "       (;_;)\n   @  ~~~~~~~>   *stomach rumbles*",
-            "starving": "       (x_x)\n   @  _______    *has retreated into shell*",
+            "ecstatic": "      .@@@.\n    .@     @.\n   (  ^   ^  )   *zooms at 0.03 km/h!*\n    '@     @'\n  __/   |   \\______~~~~>",
+            "happy":    "      .@@@.\n    .@     @.\n   (  o   o  )\n    '@     @'\n  __/   |   \\______~~~>",
+            "meh":      "      .@@@.\n    .@     @.\n   (  -   -  )   ...\n    '@     @'\n  __/   |   \\______~~>",
+            "hungry":   "      .@@@.\n    .@     @.\n   (  ;   ;  )   *stomach rumbles*\n    '@     @'\n  __/   |   \\______.",
+            "starving": "      .@@@.\n    .@     @.\n   (  x   x  )   *has retreated into shell*\n    '@_____@'\n  _____________",
         },
         "diary": {
             "ecstatic": ["Ate like royalty. Slimed a victory lap.", "Feast day. Lettuce for everyone."],
@@ -56,11 +56,11 @@ SPECIES = {
     "crab": {
         "default_name": "Clawdia",
         "art": {
-            "ecstatic": "  (\\/)  (°,,,,°)  (\\/)   *dances sideways*",
-            "happy":    "  (\\/)  (°,,,,°)  (\\/)",
-            "meh":      "  (\\/)  (-,,,,-)  (\\/)",
-            "hungry":   "  (\\/)  (;,,,,;)  (\\/)   *clicks claws impatiently*",
-            "starving": "         (x,,,,x)         *hiding under a rock*",
+            "ecstatic": "     o     o\n   \\(  ^,,,,^  )/   *dances sideways*\n    /||  ||  ||\\",
+            "happy":    "     o     o\n   \\(  o,,,,o  )/\n    /||  ||  ||\\",
+            "meh":      "     o     o\n   \\(  -,,,,-  )/\n    /||  ||  ||\\",
+            "hungry":   "     o     o\n   \\(  ;,,,,;  )/   *clicks claws impatiently*\n    /||  ||  ||\\",
+            "starving": "           o\n         (x,,,,x)   *hiding under a rock*\n        ___________",
         },
         "diary": {
             "ecstatic": ["Pinched a whole feast. Scuttled in circles.", "Sideways victory dance x3."],
@@ -73,11 +73,11 @@ SPECIES = {
     "cat": {
         "default_name": "Biscuit",
         "art": {
-            "ecstatic": "   /\\_/\\\n  ( ^.^ )   *purring loudly*\n   > ♥ <",
-            "happy":    "   /\\_/\\\n  ( o.o )\n   > ^ <",
-            "meh":      "   /\\_/\\\n  ( -.- )   *tail flick*\n   > ^ <",
-            "hungry":   "   /\\_/\\\n  ( ;.; )   *knocks your mug off the desk*\n   > ^ <",
-            "starving": "   /\\_/\\\n  ( x.x )   *lying dramatically on keyboard*\n   >   <",
+            "ecstatic": "   /\\_/\\\n  ( ^.^ )~  *purring loudly*\n   > ♥ <\n  /|   |\\",
+            "happy":    "   /\\_/\\\n  ( o.o )~\n   > ^ <\n  /|   |\\",
+            "meh":      "   /\\_/\\\n  ( -.- )~  *tail flick*\n   > ^ <\n  /|   |\\",
+            "hungry":   "   /\\_/\\\n  ( ;.; )   *knocks your mug off the desk*\n   > ^ <\n  /|   |\\",
+            "starving": "   /\\_/\\\n  ( x.x )   *lying dramatically on keyboard*\n  _______\n /_______\\",
         },
         "diary": {
             "ecstatic": ["My human worked hard. I allowed one pet.", "Feast. Then a 14-hour nap."],
@@ -90,11 +90,11 @@ SPECIES = {
     "slime": {
         "default_name": "Gloop",
         "art": {
-            "ecstatic": "    .-\"\"\"-.\n   (  ^ ^  )   *wobbles with joy*\n    '-----'",
-            "happy":    "    .-\"\"\"-.\n   (  o o  )\n    '-----'",
-            "meh":      "    .-\"\"\"-.\n   (  - -  )\n    '-----'",
-            "hungry":   "    .-\"\"\"-.\n   (  ; ;  )   *gurgle*\n    '-----'",
-            "starving": "\n   .-------.   *a puddle*\n",
+            "ecstatic": "     .-\"\"\"-.\n    (  ^ ^  )  *wobbles with joy*\n     )     (\n    '-------'",
+            "happy":    "     .-\"\"\"-.\n    (  o o  )\n     )     (\n    '-------'",
+            "meh":      "     .-\"\"\"-.\n    (  - -  )\n     )     (\n    '-------'",
+            "hungry":   "     .-\"\"\"-.\n    (  ; ;  )  *gurgle*\n     )     (\n    '.___.'  ,  ,",
+            "starving": "      .    .\n     ( x  x )\n      `.__.'    *a puddle*\n    ~~~~~~~~~~",
         },
         "diary": {
             "ecstatic": ["Absorbed SO many commits. I am large now.", "Wobbled all day. Pure joy."],
