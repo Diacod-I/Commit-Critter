@@ -48,13 +48,13 @@ That's it, with no tokens or secrets to set up. The critter appears at the botto
 
 | snail | crab | cat | slime |
 |---|---|---|---|
-| <img src="assets/snail-happy.svg" width="200" alt="snail"> | <img src="assets/crab-happy.svg" width="200" alt="crab"> | <img src="assets/cat-happy.svg" width="200" alt="cat"> | <img src="assets/slime-happy.svg" width="200" alt="slime"> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/snail-happy-dark.svg"><img src="assets/snail-happy.svg" width="200" alt="snail"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/crab-happy-dark.svg"><img src="assets/crab-happy.svg" width="200" alt="crab"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-happy-dark.svg"><img src="assets/cat-happy.svg" width="200" alt="cat"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/slime-happy-dark.svg"><img src="assets/slime-happy.svg" width="200" alt="slime"></picture> |
 
 Each has five moods and its own diary voice. The critter and its stats are drawn as one animated SVG card saved to `.critter/critter.svg`, so it bobs, blinks and sulks right in your README:
 
 | ecstatic | happy | meh | hungry | starving |
 |---|---|---|---|---|
-| <img src="assets/cat-ecstatic.svg" width="160" alt="ecstatic"> | <img src="assets/cat-happy.svg" width="160" alt="happy"> | <img src="assets/cat-meh.svg" width="160" alt="meh"> | <img src="assets/cat-hungry.svg" width="160" alt="hungry"> | <img src="assets/cat-starving.svg" width="160" alt="starving"> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-ecstatic-dark.svg"><img src="assets/cat-ecstatic.svg" width="160" alt="ecstatic"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-happy-dark.svg"><img src="assets/cat-happy.svg" width="160" alt="happy"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-meh-dark.svg"><img src="assets/cat-meh.svg" width="160" alt="meh"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-hungry-dark.svg"><img src="assets/cat-hungry.svg" width="160" alt="hungry"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/cat-starving-dark.svg"><img src="assets/cat-starving.svg" width="160" alt="starving"></picture> |
 
 ## Options
 
@@ -67,6 +67,10 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 | `github-user` | repo owner | whose activity feeds it |
 | `author-name` / `author-email` | your profile | commit author; the default noreply address always counts toward your graph |
 | `push` | `true` | `false` for a dry run |
+
+| `theme: light` | `theme: dark` |
+|---|---|
+| <img src="assets/card.svg" width="384" alt="Light card"> | <img src="assets/card-dark.svg" width="384" alt="Dark card"> |
 
 ## How it works
 
