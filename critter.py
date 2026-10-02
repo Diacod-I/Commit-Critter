@@ -273,14 +273,14 @@ def trophy():
 def preview():
     out = Path(sys.argv[2])
     out.mkdir(parents=True, exist_ok=True)
-    for sp in SPECIES:
-        for m in MOODS:
-            (out / f"{sp}-{m}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}"))
     demo = {"name": "Pebble", "species": "snail", "hunger": 0, "food_today": 6, "streak": 12, "best": 12, "age": 40}
     for th in sprites.THEMES:
-        name = "card.svg" if th == "light" else f"card-{th}.svg"
-        (out / name).write_text(sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo, theme=th))
-
+        suffix = "" if th == "light" else f"-{th}"
+        for sp in SPECIES:
+            for m in MOODS:
+                (out / f"{sp}-{m}{suffix}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}", theme=th))
+        (out / f"card{suffix}.svg").write_text(
+            sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo, theme=th))
 
 if __name__ == "__main__":
     {"whoami": whoami, "feed": feed, "diary": diary, "trophy": trophy, "preview": preview}[sys.argv[1]]()
