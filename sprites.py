@@ -168,6 +168,86 @@ BLINK = (".open{animation:open 4s steps(1) infinite}@keyframes open{92%{opacity:
 TWINKLE = ".tw{animation:tw 1s steps(1) infinite}.tw2{animation-delay:-.5s}@keyframes tw{50%{opacity:.25}}"
 
 
+# ---------------------------------------------------------------- stats panel
+# Drawn at half scale (2 font pixels per art pixel), in a tiny pixel font.
+
+PANEL_X, PANEL_W = 42, 54   # art pixels; the card grows to the right of the sprite
+FONT = {
+    "A": [".#.", "#.#", "###", "#.#", "#.#"], "B": ["##.", "#.#", "##.", "#.#", "##."],
+    "C": [".##", "#..", "#..", "#..", ".##"], "D": ["##.", "#.#", "#.#", "#.#", "##."],
+    "E": ["###", "#..", "##.", "#..", "###"], "F": ["###", "#..", "##.", "#..", "#.."],
+    "G": [".##", "#..", "#.#", "#.#", ".##"], "H": ["#.#", "#.#", "###", "#.#", "#.#"],
+    "I": ["###", ".#.", ".#.", ".#.", "###"], "J": ["..#", "..#", "..#", "#.#", ".#."],
+    "K": ["#.#", "#.#", "##.", "#.#", "#.#"], "L": ["#..", "#..", "#..", "#..", "###"],
+    "M": ["#...#", "##.##", "#.#.#", "#...#", "#...#"], "N": ["#..#", "##.#", "#.##", "#..#", "#..#"],
+    "O": [".#.", "#.#", "#.#", "#.#", ".#."], "P": ["##.", "#.#", "##.", "#..", "#.."],
+    "Q": [".#.", "#.#", "#.#", "##.", ".##"], "R": ["##.", "#.#", "##.", "#.#", "#.#"],
+    "S": [".##", "#..", ".#.", "..#", "##."], "T": ["###", ".#.", ".#.", ".#.", ".#."],
+    "U": ["#.#", "#.#", "#.#", "#.#", "###"], "V": ["#.#", "#.#", "#.#", ".#.", ".#."],
+    "W": ["#...#", "#...#", "#.#.#", "##.##", "#...#"], "X": ["#.#", "#.#", ".#.", "#.#", "#.#"],
+    "Y": ["#.#", "#.#", ".#.", ".#.", ".#."], "Z": ["###", "..#", ".#.", "#..", "###"],
+    "0": ["###", "#.#", "#.#", "#.#", "###"], "1": [".#.", "##.", ".#.", ".#.", "###"],
+    "2": ["##.", "..#", ".#.", "#..", "###"], "3": ["##.", "..#", ".#.", "..#", "##."],
+    "4": ["#.#", "#.#", "###", "..#", "..#"], "5": ["###", "#..", "##.", "..#", "##."],
+    "6": [".##", "#..", "###", "#.#", "###"], "7": ["###", "..#", ".#.", ".#.", ".#."],
+    "8": ["###", "#.#", "###", "#.#", "###"], "9": ["###", "#.#", "###", "..#", "##."],
+    " ": ["..", "..", "..", "..", ".."], ".": [".", ".", ".", ".", "#"], "!": ["#", "#", "#", ".", "#"],
+    "?": ["##.", "..#", ".#.", "...", ".#."], "-": ["...", "...", "###", "...", "..."],
+    "'": ["#", "#", ".", ".", "."], ":": [".", "#", ".", "#", "."], "/": ["..#", "..#", ".#.", "#..", "#.."],
+}
+PANEL = {"K": OUTLINE, "k": "#7a7287", "H": "#ff5d8f", "h": "#d8d2de", "F": "#ffffff"}
+MOOD_INK = {"ecstatic": "#c98a00", "happy": "#2f9a52", "meh": "#6b7285",
+            "hungry": "#d9662b", "starving": "#8a5aa8"}
+HEART_ICON = [".##.##.", "#######", "#######", ".#####.", "..###..", "...#..."]
+
+
+def _text_width(text):
+    return sum(len(FONT.get(c, FONT["?"])[0]) + 1 for c in text) - 1
+
+
+def _text(layer, x, y, text, ink):
+    for c in text:
+        glyph = FONT.get(c, FONT["?"])
+        _stamp(layer, [r.replace("#", ink) for r in glyph], x, y)
+        x += len(glyph[0]) + 1
+    return x
+
+
+def _panel(stats, mood):
+    """Stats panel pixels, in half-scale units, and the colours they use."""
+    px = {}
+    left, top, width = PANEL_X * 2, 4, PANEL_W * 2 - 4
+    x0, inner = left + 6, width - 12
+    _stamp(px, ["F" * width] * 44, left, top)
+    for x in range(left, left + width):  # outline, rounded by skipping the corners
+        px[(x, top - 1)] = px[(x, top + 44)] = "K"
+    for y in range(top, top + 44):
+        px[(left - 1, y)] = px[(left + width, y)] = "K"
+
+    name, species = stats["name"].upper(), f"THE {stats['species'].upper()}"
+    while _text_width(f"{name} {species}") > inner and len(name) > 1:
+        name = name[:-1].rstrip()
+    _text(px, _text(px, x0, top + 4, name, "K") + 3, top + 4, species, "k")
+    _text(px, x0, top + 12, mood.upper(), "M")
+
+    full = 10 - stats["hunger"]          # 0..10, shown as five hearts that can be half full
+    x = _text(px, x0, top + 21, "FULL", "k") + 3
+    for i in range(5):
+        filled = min(max(full - 2 * i, 0), 2)
+        cut = {0: 0, 1: 4, 2: 7}[filled]
+        _stamp(px, [r[:cut].replace("#", "H") + r[cut:].replace("#", "h") for r in HEART_ICON], x, top + 20)
+        x += 8
+
+    def line(y, *pairs):
+        x = x0
+        for label, value in pairs:
+            x = _text(px, _text(px, x, y, label, "k") + 2, y, value, "K") + 6
+
+    line(top + 30, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
+    line(top + 38, ("AGE", f"{stats['age']}D"), ("ATE TODAY", str(stats["food_today"])))
+    return px, {**PANEL, "M": MOOD_INK[mood]}
+
+
 def _grey(hex_colour, amount):
     """Blend a colour towards its own grey by `amount` (0 = unchanged, 1 = fully grey)."""
     r, g, b = (int(hex_colour[i:i + 2], 16) for i in (1, 3, 5))
@@ -208,7 +288,7 @@ def _rects(pixels, colours):
     return "".join(out)
 
 
-def svg(species, mood, title=""):
+def svg(species, mood, title="", stats=None):
     sp = SPECIES[species]
     body = sp["body"]
     w, h = max(map(len, body)), len(body)
@@ -261,11 +341,17 @@ def svg(species, mood, title=""):
     css += TWINKLE if fx else ""
     css += "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
 
-    def group(pixels, cls=""):
+    def group(pixels, cls="", palette=colours):
         if not pixels:
             return ""
         attr = f' class="{cls}"' if cls else ""
-        return f"<g{attr}>{_rects(pixels, colours)}</g>"
+        return f"<g{attr}>{_rects(pixels, palette)}</g>"
+
+    width, panel = W, ""
+    if stats:
+        width = PANEL_X + PANEL_W
+        panel_px, panel_colours = _panel(stats, mood)
+        panel = f'<g transform="scale(.5)">{_rects(panel_px, panel_colours)}</g>'
 
     blinks = mood in ("happy", "meh", "hungry")
     eyes = group(open_eyes, "open" if blinks else "") + (group(shut_eyes, "shut") if blinks else "")
@@ -274,15 +360,15 @@ def svg(species, mood, title=""):
                     for x in (3, 12, 30, 35))
 
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
-        f'width="{W * SCALE}" height="{H * SCALE}" shape-rendering="crispEdges">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {H}" '
+        f'width="{width * SCALE}" height="{H * SCALE}" shape-rendering="crispEdges">'
         + (f"<title>{escape(title)}</title>" if title else "")
         + f"<style>{css}</style>"
-        f'<rect width="{W}" height="{H}" rx="2" fill="{bg}"/>'
-        f'<rect y="{GROUND}" width="{W}" height="{H - GROUND}" fill="{ground}"/>'
+        f'<rect width="{width}" height="{H}" rx="2" fill="{bg}"/>'
+        f'<rect y="{GROUND}" width="{width}" height="{H - GROUND}" fill="{ground}"/>'
         f"{tufts}"
         f'<rect x="{ox + 2}" y="{GROUND}" width="{shadow_w}" height="1" fill="{OUTLINE}" opacity=".18"/>'
         f'<g class="bob">{group(sprite)}{group(face)}{eyes}</g>'
-        f'{group(fx, "tw")}{group(fx2, "tw tw2")}'
+        f'{group(fx, "tw")}{group(fx2, "tw tw2")}{panel}'
         "</svg>\n"
     )

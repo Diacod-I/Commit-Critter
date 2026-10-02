@@ -4,9 +4,7 @@ A tiny pet that lives in your GitHub README and eats your real GitHub activity.
 
 Once a day, a GitHub Action visits your critter and feeds it whatever you actually did on GitHub in the last 24 hours: pushes, PRs, reviews, issues. Do real work and it thrives. Skip a few days and it gets hungry, and everyone visiting your profile can see it.
 
-<img src="assets/snail-ecstatic.svg" width="320" alt="Pebble the snail, feeling ecstatic">
-
-**Pebble** the snail · **ecstatic** · fullness `██████████` · ate 6 today · real-work streak 12d (best 12d) · age 40d
+<img src="assets/card.svg" width="576" alt="Pebble the snail, feeling ecstatic. Fullness 10/10, ate 6 today, real-work streak 12d (best 12d), age 40d.">
 
 ---
 
@@ -48,7 +46,7 @@ That's it, with no tokens or secrets to set up. The critter appears at the botto
 |---|---|---|---|
 | <img src="assets/snail-happy.svg" width="200" alt="snail"> | <img src="assets/crab-happy.svg" width="200" alt="crab"> | <img src="assets/cat-happy.svg" width="200" alt="cat"> | <img src="assets/slime-happy.svg" width="200" alt="slime"> |
 
-Each has five moods and its own diary voice. The sprite is an animated SVG saved to `.critter/critter.svg`, so it bobs, blinks and sulks right in your README:
+Each has five moods and its own diary voice. The critter and its stats are drawn as one animated SVG card saved to `.critter/critter.svg`, so it bobs, blinks and sulks right in your README:
 
 | ecstatic | happy | meh | hungry | starving |
 |---|---|---|---|---|
