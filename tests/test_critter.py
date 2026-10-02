@@ -65,6 +65,13 @@ class CritterTest(unittest.TestCase):
             expected = 3 if i == 6 else 2
             self.assertEqual(sum(bool(m) for m in msgs), expected, (day, msgs))
         self.assertIn("one week", msgs[2])
+        trophies = Path(".critter/trophies.md").read_text()
+        self.assertNotIn("No trophies yet", trophies)
+        self.assertEqual(trophies.count("🏆"), 1)
+
+    def test_trophies_page_exists_from_day_one(self):
+        self.run_day("2026-01-01", 1)
+        self.assertIn("No trophies yet", Path(".critter/trophies.md").read_text())
 
     def test_rerun_same_day_is_noop(self):
         self.run_day("2026-01-01", 2)
