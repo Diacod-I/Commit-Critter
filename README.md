@@ -1,34 +1,10 @@
-# Commit-Critter
-
-A pet that lives in this README. A bot visits every day at noon IST and feeds it
-whatever I actually did on GitHub in the last 24 hours. No real work means no food.
-
-```
-       (o.o)
-   @  ~~~~~~~>
-```
-
-| | |
-|---|---|
-| Mood | **happy** |
-| Fullness | `████████░░` |
-| Ate today | 1 |
-| Age | 1 days (born 2026-10-02) |
-| Lifetime food | 1 |
-| Real-work streak | 1 days (best: 1) |
-
-[Diary](diary.md) · [Trophies](trophies.md)
-=======
 # Commit Critter 🐌🦀🐱🫧
 
 A tiny pet that lives in your GitHub README and eats your real GitHub activity.
 
 Once a day, a GitHub Action visits your critter and feeds it whatever you actually did on GitHub in the last 24 hours: pushes, PRs, reviews, issues. Do real work and it thrives. Skip a few days and it gets hungry, and everyone visiting your profile can see it.
 
-```text
-     \(^o^)/
-   @  ~~~~~~~>   *zooms at 0.03 km/h*
-```
+<img src="assets/snail-ecstatic.svg" width="320" alt="Pebble the snail, feeling ecstatic">
 
 **Pebble** the snail · **ecstatic** · fullness `██████████` · ate 6 today · real-work streak 12d (best 12d) · age 40d
 
@@ -70,9 +46,13 @@ That's it, with no tokens or secrets to set up. The critter appears at the botto
 
 | snail | crab | cat | slime |
 |---|---|---|---|
-| <pre>       (o.o)<br>   @  ~~~~~~~></pre> | <pre>(\/)  (°,,,,°)  (\/)</pre> | <pre> /\_/\<br>( o.o )<br> > ^ <</pre> | <pre>  .-"""-.<br> (  o o  )<br>  '-----'</pre> |
+| <img src="assets/snail-happy.svg" width="200" alt="snail"> | <img src="assets/crab-happy.svg" width="200" alt="crab"> | <img src="assets/cat-happy.svg" width="200" alt="cat"> | <img src="assets/slime-happy.svg" width="200" alt="slime"> |
 
-Each has five moods (ecstatic → happy → meh → hungry → starving) and its own diary voice.
+Each has five moods and its own diary voice. The sprite is an animated SVG saved to `.critter/critter.svg`, so it bobs, blinks and sulks right in your README:
+
+| ecstatic | happy | meh | hungry | starving |
+|---|---|---|---|---|
+| <img src="assets/cat-ecstatic.svg" width="160" alt="ecstatic"> | <img src="assets/cat-happy.svg" width="160" alt="happy"> | <img src="assets/cat-meh.svg" width="160" alt="meh"> | <img src="assets/cat-hungry.svg" width="160" alt="hungry"> | <img src="assets/cat-starving.svg" width="160" alt="starving"> |
 
 ## Options
 
@@ -89,7 +69,7 @@ Each has five moods (ecstatic → happy → meh → hungry → starving) and its
 
 Each run makes **1–3 commits** as you:
 
-1. **Feed:** reads your public events from the last 24h, updates `.critter/state.json`, and redraws the README.
+1. **Feed:** reads your public events from the last 24h, updates `.critter/state.json`, redraws the sprite in `.critter/critter.svg`, and updates the README.
 2. **Diary:** appends an entry to `.critter/diary.md` in the critter's voice.
 3. **Trophy:** only on milestone days (7, 30, 100 or 365 days of real work in a row) → `.critter/trophies.md`.
 
@@ -111,9 +91,10 @@ GitHub delays scheduled workflows when it's busy, sometimes by 30+ minutes. That
 
 ## Contributing
 
-New critters are the easiest contribution: add an entry to `SPECIES` in `critter.py` with art and diary lines for all five moods, then run the tests:
+New critters are the easiest contribution: draw a body grid in `sprites.py` (fill colours only; the outline, face and mood effects are added for you), add diary lines for all five moods to `SPECIES` in `critter.py`, then regenerate the previews and run the tests:
 
 ```bash
+python3 critter.py preview assets
 python3 -m unittest discover -v tests
 ```
 

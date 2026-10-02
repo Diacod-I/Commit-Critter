@@ -5,11 +5,13 @@ Commit Critter: a tiny pet that lives in your README and eats your real GitHub a
   python critter.py feed     -> ages the pet, feeds it your last-24h activity, redraws README
   python critter.py diary    -> appends today's diary entry
   python critter.py trophy   -> adds a trophy on milestone days only
+  python critter.py preview DIR -> writes every species/mood sprite to DIR (for the docs)
 
 Each command except whoami writes its commit message to .critter-msg (empty = nothing to commit).
 Configured through environment variables (set by action.yml). Stdlib only.
 """
 import datetime as dt
+import html
 import json
 import os
 import random
@@ -17,6 +19,8 @@ import re
 import sys
 import urllib.request
 from pathlib import Path
+
+import sprites
 
 # ---------------------------------------------------------------- config
 
@@ -38,13 +42,6 @@ MOODS = ["ecstatic", "happy", "meh", "hungry", "starving"]
 SPECIES = {
     "snail": {
         "default_name": "Pebble",
-        "art": {
-            "ecstatic": "      .@@@.\n    .@     @.\n   (  ^   ^  )   *zooms at 0.03 km/h!*\n    '@     @'\n  __/   |   \\______~~~~>",
-            "happy":    "      .@@@.\n    .@     @.\n   (  o   o  )\n    '@     @'\n  __/   |   \\______~~~>",
-            "meh":      "      .@@@.\n    .@     @.\n   (  -   -  )   ...\n    '@     @'\n  __/   |   \\______~~>",
-            "hungry":   "      .@@@.\n    .@     @.\n   (  ;   ;  )   *stomach rumbles*\n    '@     @'\n  __/   |   \\______.",
-            "starving": "      .@@@.\n    .@     @.\n   (  x   x  )   *has retreated into shell*\n    '@_____@'\n  _____________",
-        },
         "diary": {
             "ecstatic": ["Ate like royalty. Slimed a victory lap.", "Feast day. Lettuce for everyone."],
             "happy":    ["A decent meal. Life is good.", "Crunchy commits today."],
@@ -55,13 +52,6 @@ SPECIES = {
     },
     "crab": {
         "default_name": "Clawdia",
-        "art": {
-            "ecstatic": "     o     o\n   \\(  ^,,,,^  )/   *dances sideways*\n    /||  ||  ||\\",
-            "happy":    "     o     o\n   \\(  o,,,,o  )/\n    /||  ||  ||\\",
-            "meh":      "     o     o\n   \\(  -,,,,-  )/\n    /||  ||  ||\\",
-            "hungry":   "     o     o\n   \\(  ;,,,,;  )/   *clicks claws impatiently*\n    /||  ||  ||\\",
-            "starving": "           o\n         (x,,,,x)   *hiding under a rock*\n        ___________",
-        },
         "diary": {
             "ecstatic": ["Pinched a whole feast. Scuttled in circles.", "Sideways victory dance x3."],
             "happy":    ["Good haul today. Claws content.", "The tide brought commits."],
@@ -72,13 +62,6 @@ SPECIES = {
     },
     "cat": {
         "default_name": "Biscuit",
-        "art": {
-            "ecstatic": "   /\\_/\\\n  ( ^.^ )~  *purring loudly*\n   > ♥ <\n  /|   |\\",
-            "happy":    "   /\\_/\\\n  ( o.o )~\n   > ^ <\n  /|   |\\",
-            "meh":      "   /\\_/\\\n  ( -.- )~  *tail flick*\n   > ^ <\n  /|   |\\",
-            "hungry":   "   /\\_/\\\n  ( ;.; )   *knocks your mug off the desk*\n   > ^ <\n  /|   |\\",
-            "starving": "   /\\_/\\\n  ( x.x )   *lying dramatically on keyboard*\n  _______\n /_______\\",
-        },
         "diary": {
             "ecstatic": ["My human worked hard. I allowed one pet.", "Feast. Then a 14-hour nap."],
             "happy":    ["Adequate tribute received.", "Sat on the warm laptop. Commits were made."],
@@ -89,13 +72,6 @@ SPECIES = {
     },
     "slime": {
         "default_name": "Gloop",
-        "art": {
-            "ecstatic": "     .-\"\"\"-.\n    (  ^ ^  )  *wobbles with joy*\n     )     (\n    '-------'",
-            "happy":    "     .-\"\"\"-.\n    (  o o  )\n     )     (\n    '-------'",
-            "meh":      "     .-\"\"\"-.\n    (  - -  )\n     )     (\n    '-------'",
-            "hungry":   "     .-\"\"\"-.\n    (  ; ;  )  *gurgle*\n     )     (\n    '.___.'  ,  ,",
-            "starving": "      .    .\n     ( x  x )\n      `.__.'    *a puddle*\n    ~~~~~~~~~~",
-        },
         "diary": {
             "ecstatic": ["Absorbed SO many commits. I am large now.", "Wobbled all day. Pure joy."],
             "happy":    ["Absorbed some commits. Squishy and content.", "Good day to be gelatinous."],
@@ -178,9 +154,7 @@ def block(s):
     sp, m = species(), mood(s)
     bar = "█" * (10 - s["hunger"]) + "░" * s["hunger"]
     return f"""{START}
-```text
-{SPECIES[sp]['art'][m]}
-```
+<img src="{HOME.as_posix()}/critter.svg" width="320" alt="{html.escape(pet_name())} the {sp}, feeling {m}">
 
 **{pet_name()}** the {sp} · **{m}** · fullness `{bar}` · ate {s['food_today']} today · real-work streak {s['real_streak']}d (best {s['best_streak']}d) · age {s['age']}d · [diary]({HOME.as_posix()}/diary.md) · [trophies]({HOME.as_posix()}/trophies.md)
 
@@ -189,6 +163,9 @@ def block(s):
 
 
 def render(s):
+    HOME.mkdir(exist_ok=True)
+    sp, m = species(), mood(s)
+    (HOME / "critter.svg").write_text(sprites.svg(sp, m, title=f"{pet_name()} the {sp}, feeling {m}"))
     text = README.read_text() if README.exists() else ""
     new = block(s)
     if START in text and END in text:
@@ -276,5 +253,13 @@ def trophy():
     msg(f"🏆 trophy: {got}")
 
 
+def preview():
+    out = Path(sys.argv[2])
+    out.mkdir(parents=True, exist_ok=True)
+    for sp in SPECIES:
+        for m in MOODS:
+            (out / f"{sp}-{m}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}"))
+
+
 if __name__ == "__main__":
-    {"whoami": whoami, "feed": feed, "diary": diary, "trophy": trophy}[sys.argv[1]]()
+    {"whoami": whoami, "feed": feed, "diary": diary, "trophy": trophy, "preview": preview}[sys.argv[1]]()
