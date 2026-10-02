@@ -1,4 +1,4 @@
-# README-buddy
+# Commit-Critter
 
 A pet that lives in this README. A bot visits every day at noon IST and feeds it
 whatever I actually did on GitHub in the last 24 hours. No real work means no food.
