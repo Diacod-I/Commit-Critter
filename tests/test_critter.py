@@ -91,10 +91,17 @@ class CritterTest(unittest.TestCase):
 
     def test_every_species_has_every_mood(self):
         import critter
+        import xml.etree.ElementTree as ET
+        self.assertEqual(set(critter.SPECIES), set(critter.sprites.SPECIES))
         for name, sp in critter.SPECIES.items():
             for m in critter.MOODS:
-                self.assertIn(m, sp["art"], name)
                 self.assertTrue(sp["diary"][m], name)
+                ET.fromstring(critter.sprites.svg(name, m, title="<Tom & Jerry>"))  # well-formed
+
+    def test_sprite_is_drawn_and_linked(self):
+        self.run_day("2026-01-01", 6)
+        self.assertIn('<img src=".critter/critter.svg"', Path("README.md").read_text())
+        self.assertIn("<title>Clawdia the crab, feeling ecstatic</title>", Path(".critter/critter.svg").read_text())
 
 
 if __name__ == "__main__":
