@@ -49,7 +49,7 @@ class CritterTest(unittest.TestCase):
         self.run_day("2026-01-01", 3)
         text = Path("README.md").read_text()
         self.assertTrue(text.startswith("# Hi, I'm Octocat\n\nI build things."))
-        self.assertIn("**Clawdia** the crab", text)
+        self.assertIn("Clawdia the crab, feeling", text)
         self.assertEqual(text.count("COMMIT-CRITTER:START"), 1)
 
     def test_block_is_replaced_in_place_not_duplicated(self):
@@ -101,7 +101,9 @@ class CritterTest(unittest.TestCase):
     def test_sprite_is_drawn_and_linked(self):
         self.run_day("2026-01-01", 6)
         self.assertIn('<img src=".critter/critter.svg"', Path("README.md").read_text())
-        self.assertIn("<title>Clawdia the crab, feeling ecstatic</title>", Path(".critter/critter.svg").read_text())
+        card = Path(".critter/critter.svg").read_text()
+        self.assertIn("<title>Clawdia the crab, feeling ecstatic. Fullness 10/10, ate 6 today", card)
+        self.assertIn('transform="scale(.5)"', card)  # stats panel is drawn
 
 
 if __name__ == "__main__":

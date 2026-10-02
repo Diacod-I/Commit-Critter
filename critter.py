@@ -150,22 +150,27 @@ def real_activity():
 # ---------------------------------------------------------------- rendering
 
 
+def describe(s):
+    """The whole card in words: the SVG's title and the README alt text."""
+    return (f"{pet_name()} the {species()}, feeling {mood(s)}. Fullness {10 - s['hunger']}/10, "
+            f"ate {s['food_today']} today, real-work streak {s['real_streak']}d "
+            f"(best {s['best_streak']}d), age {s['age']}d.")
+
+
 def block(s):
-    sp, m = species(), mood(s)
-    bar = "█" * (10 - s["hunger"]) + "░" * s["hunger"]
+    home = HOME.as_posix()
     return f"""{START}
-<img src="{HOME.as_posix()}/critter.svg" width="320" alt="{html.escape(pet_name())} the {sp}, feeling {m}">
+<img src="{home}/critter.svg" width="576" alt="{html.escape(describe(s))}">
 
-**{pet_name()}** the {sp} · **{m}** · fullness `{bar}` · ate {s['food_today']} today · real-work streak {s['real_streak']}d (best {s['best_streak']}d) · age {s['age']}d · [diary]({HOME.as_posix()}/diary.md) · [trophies]({HOME.as_posix()}/trophies.md)
-
-<sub>Fed daily with my real GitHub activity by [Commit Critter](https://github.com/{ACTION_REPO}). No work, no food.</sub>
+<sub>[diary]({home}/diary.md) · [trophies]({home}/trophies.md) · fed daily with my real GitHub activity by [Commit Critter](https://github.com/{ACTION_REPO}). No work, no food.</sub>
 {END}"""
 
 
 def render(s):
     HOME.mkdir(exist_ok=True)
-    sp, m = species(), mood(s)
-    (HOME / "critter.svg").write_text(sprites.svg(sp, m, title=f"{pet_name()} the {sp}, feeling {m}"))
+    stats = {"name": pet_name(), "species": species(), "hunger": s["hunger"], "food_today": s["food_today"],
+             "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"]}
+    (HOME / "critter.svg").write_text(sprites.svg(species(), mood(s), title=describe(s), stats=stats))
     text = README.read_text() if README.exists() else ""
     new = block(s)
     if START in text and END in text:
@@ -259,6 +264,8 @@ def preview():
     for sp in SPECIES:
         for m in MOODS:
             (out / f"{sp}-{m}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}"))
+    demo = {"name": "Pebble", "species": "snail", "hunger": 0, "food_today": 6, "streak": 12, "best": 12, "age": 40}
+    (out / "card.svg").write_text(sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo))
 
 
 if __name__ == "__main__":
