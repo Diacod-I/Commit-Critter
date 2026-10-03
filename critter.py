@@ -114,6 +114,15 @@ def size():
     return z
 
 
+def display_width():
+    """The card's width in the README: the `width` input (pixels or a %), else the size's default."""
+    w = (ENV("CRITTER_WIDTH") or "").strip()
+    if w and not re.fullmatch(r"\d+%?", w):
+        warn(f"width '{w}' should be a number of pixels like 176, or a percentage like 50%; ignoring it")
+        w = ""
+    return w or DISPLAY_WIDTH[size()]
+
+
 def float_side():
     f = (ENV("CRITTER_FLOAT") or "none").strip().lower()
     if f not in ("none", "left", "right"):
@@ -188,7 +197,7 @@ DISPLAY_WIDTH = {"small": "264", "medium": "576", "full": "100%"}
 
 def block(s):
     home = HOME.as_posix()
-    img = f'src="{home}/critter.svg" width="{DISPLAY_WIDTH[size()]}" alt="{html.escape(describe(s))}"'
+    img = f'src="{home}/critter.svg" width="{display_width()}" alt="{html.escape(describe(s))}"'
     side = float_side()
     if side != "none":
         # Floated beside the README's text: a caption line would land next to the card, so the

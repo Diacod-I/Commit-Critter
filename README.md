@@ -62,6 +62,7 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 |---|---|---|
 | `species` | `snail` | `snail`, `crab`, `cat`, `slime` |
 | `size` | `medium` | `small`, `medium` or `full`; see [sizes](#sizes) below |
+| `width` | per size | the card's width in the README, in pixels or a percentage. Pixel art stays sharpest at multiples of the card's width in art pixels: 44 for `small` (176, 220, 264), 96 for `medium` (384, 480, 576) |
 | `float` | `none` | `left` or `right` floats the card beside your README's text; the card then links to the diary instead of having a caption line. Put the markers *before* the text that should wrap around it |
 | `theme` | `light` | `light` or `dark` card colours; `dark` sits well next to dark stat widgets |
 | `pet-name` | per species | Pebble, Clawdia, Biscuit, Gloop |

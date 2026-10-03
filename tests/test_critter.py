@@ -131,6 +131,16 @@ class CritterTest(unittest.TestCase):
             del os.environ["CRITTER_FLOAT"]
         self.assertNotIn("align=", Path("README.md").read_text())
 
+    def test_width_overrides_the_size_default(self):
+        for value, expected in (("176", "176"), ("50%", "50%"), ("big", "576")):
+            os.environ["CRITTER_WIDTH"] = value
+            try:
+                Path(".critter/state.json").unlink(missing_ok=True)
+                self.run_day("2026-01-01", 1)
+            finally:
+                del os.environ["CRITTER_WIDTH"]
+            self.assertIn(f'width="{expected}"', Path("README.md").read_text(), value)
+
     def test_unknown_size_falls_back_to_medium(self):
         os.environ["CRITTER_SIZE"] = "huge"
         try:
