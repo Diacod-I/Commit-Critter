@@ -61,6 +61,7 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 | input | default | |
 |---|---|---|
 | `species` | `snail` | `snail`, `crab`, `cat`, `slime` |
+| `size` | `medium` | `small`, `medium` or `full`; see [sizes](#sizes) below |
 | `theme` | `light` | `light` or `dark` card colours; `dark` sits well next to dark stat widgets |
 | `pet-name` | per species | Pebble, Clawdia, Biscuit, Gloop |
 | `readme` | `README.md` | which file to draw in |
@@ -71,6 +72,20 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 | `theme: light` | `theme: dark` |
 |---|---|
 | <img src="assets/card.svg" width="384" alt="Light card"> | <img src="assets/card-dark.svg" width="384" alt="Dark card"> |
+
+### Sizes
+
+Each size shows different data, so pick the one that fits your README:
+
+- **`small`:** a portrait card with the critter on top, and its name, mood, fullness and streak below. Good for floating beside your intro with `<p align="right">`.
+- **`medium`** (default): the critter with all of today's stats.
+- **`full`:** everything in `medium`, plus a bar chart of what it ate over the last 7 days and its lifetime total. Spans the full width of the README.
+
+| `size: small` | `size: medium` |
+|---|---|
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/card-small-dark.svg"><img src="assets/card-small.svg" width="176" alt="Small card"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/card-dark.svg"><img src="assets/card.svg" width="384" alt="Medium card"></picture> |
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/card-full-dark.svg"><img src="assets/card-full.svg" width="100%" alt="Full-width card"></picture>
 
 ## How it works
 

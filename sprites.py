@@ -181,9 +181,16 @@ TWINKLE = ".tw{animation:tw 1s steps(1) infinite}.tw2{animation-delay:-.5s}@keyf
 # ---------------------------------------------------------------- stats panel
 # Drawn at half scale (2 font pixels per art pixel), in a tiny pixel font.
 
-# Card layout, in art pixels: | margin | scene window | gap | stats text | margin |
-MARGIN, GAP, TEXT_W = 2, 3, 49
-CARD_W, CARD_H = MARGIN + W + GAP + TEXT_W + MARGIN, MARGIN + H + MARGIN
+# Card layouts, in art pixels. Every card has the scene window at (MARGIN, MARGIN); then
+#   small:  stats under the scene               (a portrait card to float beside text)
+#   medium: | scene | stats |
+#   full:   | scene | stats | last-7-days chart | (a banner for the README's full width)
+MARGIN, GAP, TEXT_W, CHART_W, SMALL_TEXT_H = 2, 3, 49, 46, 12
+SIZES = {
+    "small":  (MARGIN + W + MARGIN, MARGIN + H + MARGIN + SMALL_TEXT_H),
+    "medium": (MARGIN + W + GAP + TEXT_W + MARGIN, MARGIN + H + MARGIN),
+    "full":   (MARGIN + W + GAP + TEXT_W + GAP + CHART_W + MARGIN, MARGIN + H + MARGIN),
+}
 FONT = {
     "A": [".#.", "#.#", "###", "#.#", "#.#"], "B": ["##.", "#.#", "##.", "#.#", "##."],
     "C": [".##", "#..", "#..", "#..", ".##"], "D": ["##.", "#.#", "#.#", "#.#", "##."],
@@ -204,7 +211,7 @@ FONT = {
     "6": [".##", "#..", "###", "#.#", "###"], "7": ["###", "..#", ".#.", ".#.", ".#."],
     "8": ["###", "#.#", "###", "#.#", "###"], "9": ["###", "#.#", "###", "..#", "##."],
     " ": ["..", "..", "..", "..", ".."], ".": [".", ".", ".", ".", "#"], "!": ["#", "#", "#", ".", "#"],
-    "?": ["##.", "..#", ".#.", "...", ".#."], "-": ["...", "...", "###", "...", "..."],
+    "?": ["##.", "..#", ".#.", "...", ".#."], "-": ["...", "...", "###", "...", "..."], "+": ["...", ".#.", "###", ".#.", "..."],
     "'": ["#", "#", ".", ".", "."], ":": [".", "#", ".", "#", "."], "/": ["..#", "..#", ".#.", "#..", "#.."],
 }
 PANEL = {
@@ -231,35 +238,77 @@ def _text(layer, x, y, text, ink):
     return x
 
 
-def _panel(stats, mood, theme):
-    """Stats text pixels, in half-scale units, and the colours they use."""
-    px = {}
-    x0, inner = (MARGIN + W + GAP) * 2, (TEXT_W - 1) * 2
-    top = (CARD_H * 2 - 42) // 2         # the text block is 42 half-pixels tall
-
+def _name(px, x, y, inner, stats):
     name, species = stats["name"].upper(), f"THE {stats['species'].upper()}"
     while _text_width(f"{name} {species}") > inner and len(name) > 1:
         name = name[:-1].rstrip()
-    _text(px, _text(px, x0, top, name, "K") + 3, top, species, "k")
+    _text(px, _text(px, x, y, name, "K") + 3, y, species, "k")
+
+
+def _hearts(px, x, y, hunger):
+    """Fullness (10 - hunger, 0..10) as five hearts that can be half full."""
+    full = 10 - hunger
+    for i in range(5):
+        cut = {0: 0, 1: 4, 2: 7}[min(max(full - 2 * i, 0), 2)]
+        _stamp(px, [r[:cut].replace("#", "H") + r[cut:].replace("#", "h") for r in HEART_ICON], x + 8 * i, y)
+
+
+def _pairs(px, x, y, *pairs):
+    for label, value in pairs:
+        x = _text(px, _text(px, x, y, label, "k") + 2, y, value, "K") + 6
+
+
+def _stats_block(px, stats, mood, x0, top, inner):
+    """The medium card's stats: 42 half-pixels tall."""
+    _name(px, x0, top, inner, stats)
     _text(px, x0, top + 8, mood.upper(), "M")
     for x in range(x0, x0 + inner, 2):   # dotted divider
         px[(x, top + 16)] = "h"
+    _hearts(px, _text(px, x0, top + 21, "FULL", "k") + 3, top + 20, stats["hunger"])
+    _pairs(px, x0, top + 29, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
+    _pairs(px, x0, top + 37, ("AGE", f"{stats['age']}D"), ("ATE TODAY", str(stats["food_today"])))
 
-    full = 10 - stats["hunger"]          # 0..10, shown as five hearts that can be half full
-    x = _text(px, x0, top + 21, "FULL", "k") + 3
-    for i in range(5):
-        filled = min(max(full - 2 * i, 0), 2)
-        cut = {0: 0, 1: 4, 2: 7}[filled]
-        _stamp(px, [r[:cut].replace("#", "H") + r[cut:].replace("#", "h") for r in HEART_ICON], x, top + 20)
-        x += 8
 
-    def line(y, *pairs):
-        x = x0
-        for label, value in pairs:
-            x = _text(px, _text(px, x, y, label, "k") + 2, y, value, "K") + 6
+def _small_block(px, stats, mood, x0, top, inner):
+    """The small card's stats, under the scene: 22 half-pixels tall."""
+    _name(px, x0, top, inner, stats)
+    _text(px, x0, top + 9, mood.upper(), "M")
+    _hearts(px, x0 + inner - 39, top + 8, stats["hunger"])
+    _pairs(px, x0, top + 17, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
 
-    line(top + 29, ("STREAK", f"{stats['streak']}D"), ("BEST", f"{stats['best']}D"))
-    line(top + 37, ("AGE", f"{stats['age']}D"), ("ATE TODAY", str(stats["food_today"])))
+
+def _chart_block(px, stats, mood, x0, top, inner):
+    """The full card's extra column: food eaten over the last 7 days, and in total."""
+    _text(px, x0, top, "LAST 7 DAYS", "k")
+    days = ([None] * 7 + list(stats.get("history") or []))[-7:]
+    base = top + 25                      # bars grow up from here; 3 half-pixels per food, capped at 5
+    for i, food in enumerate(days):
+        x = x0 + 13 * i
+        if food is None:                 # before the critter hatched
+            for dx in range(0, 8, 2):
+                px[(x + dx, base)] = "h"
+            continue
+        for dy in range(max(1, min(food, 5) * 3)):
+            for dx in range(8):
+                px[(x + dx, base - dy)] = "M" if food else "h"
+        label = str(food) if food < 10 else "9+"
+        _text(px, x + (8 - _text_width(label)) // 2, base + 3, label, "k")
+    _pairs(px, x0, top + 37, ("TOTAL FOOD", str(stats.get("total", 0))))
+
+
+def _panel(stats, mood, theme, size):
+    """Stats pixels for the card, in half-scale units, and the colours they use."""
+    px = {}
+    if size == "small":
+        _small_block(px, stats, mood, MARGIN * 2, (MARGIN + H) * 2 + 3, W * 2)
+    else:
+        x0, top = (MARGIN + W + GAP) * 2, ((MARGIN + H + MARGIN) * 2 - 42) // 2
+        _stats_block(px, stats, mood, x0, top, (TEXT_W - 1) * 2)
+        if size == "full":
+            cx = x0 + (TEXT_W + GAP) * 2
+            for y in range(top, top + 42, 2):   # dotted divider between the columns
+                px[(cx - GAP, y)] = "h"
+            _chart_block(px, stats, mood, cx, top, (CHART_W - 1) * 2)
     return px, {**PANEL[theme], "M": MOOD_INK[theme][mood]}
 
 
@@ -303,7 +352,7 @@ def _rects(pixels, colours):
     return "".join(out)
 
 
-def svg(species, mood, title="", stats=None, theme="light"):
+def svg(species, mood, title="", stats=None, theme="light", size="medium"):
     sp = SPECIES[species]
     body = sp["body"]
     w, h = max(map(len, body)), len(body)
@@ -379,8 +428,8 @@ def svg(species, mood, title="", stats=None, theme="light"):
     )
     width, height, body = W, H, scene
     if stats:
-        width, height = CARD_W, CARD_H
-        panel_px, panel_colours = _panel(stats, mood, theme)
+        width, height = SIZES[size]
+        panel_px, panel_colours = _panel(stats, mood, theme, size)
         body = (
             f'<rect x=".2" y=".2" width="{width - .4}" height="{height - .4}" rx="3" '
             f'fill="{panel_colours["F"]}" stroke="{panel_colours["f"]}" stroke-width=".4"/>'
