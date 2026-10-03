@@ -114,6 +114,14 @@ def size():
     return z
 
 
+def float_side():
+    f = (ENV("CRITTER_FLOAT") or "none").strip().lower()
+    if f not in ("none", "left", "right"):
+        warn(f"unknown float '{f}', not floating. Options: none, left, right")
+        f = "none"
+    return f
+
+
 def pet_name():
     return (ENV("CRITTER_NAME") or "").strip() or SPECIES[species()]["default_name"]
 
@@ -180,8 +188,17 @@ DISPLAY_WIDTH = {"small": "264", "medium": "576", "full": "100%"}
 
 def block(s):
     home = HOME.as_posix()
+    img = f'src="{home}/critter.svg" width="{DISPLAY_WIDTH[size()]}" alt="{html.escape(describe(s))}"'
+    side = float_side()
+    if side != "none":
+        # Floated beside the README's text: a caption line would land next to the card, so the
+        # card itself links to the diary and says where it comes from on hover.
+        tip = f"{pet_name()}'s diary · fed daily with my real GitHub activity by Commit Critter"
+        return f"""{START}
+<a href="{home}/diary.md"><img align="{side}" {img} title="{html.escape(tip)}"></a>
+{END}"""
     return f"""{START}
-<img src="{home}/critter.svg" width="{DISPLAY_WIDTH[size()]}" alt="{html.escape(describe(s))}">
+<img {img}>
 
 <sub>[diary]({home}/diary.md) · [trophies]({home}/trophies.md) · fed daily with my real GitHub activity by [Commit Critter](https://github.com/{ACTION_REPO}). No work, no food.</sub>
 {END}"""

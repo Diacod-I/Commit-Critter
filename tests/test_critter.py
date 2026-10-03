@@ -113,6 +113,24 @@ class CritterTest(unittest.TestCase):
             w, h = sprites.SIZES[size]
             self.assertEqual(card.get("viewBox"), f"0 0 {w} {h}", size)
 
+    def test_float_links_the_card_and_drops_the_caption(self):
+        os.environ["CRITTER_FLOAT"] = "right"
+        try:
+            self.run_day("2026-01-01", 1)
+        finally:
+            del os.environ["CRITTER_FLOAT"]
+        text = Path("README.md").read_text()
+        self.assertIn('<a href=".critter/diary.md"><img align="right" src=".critter/critter.svg"', text)
+        self.assertNotIn("<sub>", text)
+
+    def test_unknown_float_does_not_float(self):
+        os.environ["CRITTER_FLOAT"] = "middle"
+        try:
+            self.run_day("2026-01-01", 1)
+        finally:
+            del os.environ["CRITTER_FLOAT"]
+        self.assertNotIn("align=", Path("README.md").read_text())
+
     def test_unknown_size_falls_back_to_medium(self):
         os.environ["CRITTER_SIZE"] = "huge"
         try:

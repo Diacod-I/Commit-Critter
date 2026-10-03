@@ -62,6 +62,7 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 |---|---|---|
 | `species` | `snail` | `snail`, `crab`, `cat`, `slime` |
 | `size` | `medium` | `small`, `medium` or `full`; see [sizes](#sizes) below |
+| `float` | `none` | `left` or `right` floats the card beside your README's text; the card then links to the diary instead of having a caption line. Put the markers *before* the text that should wrap around it |
 | `theme` | `light` | `light` or `dark` card colours; `dark` sits well next to dark stat widgets |
 | `pet-name` | per species | Pebble, Clawdia, Biscuit, Gloop |
 | `readme` | `README.md` | which file to draw in |
@@ -77,7 +78,7 @@ Each has five moods and its own diary voice. The critter and its stats are drawn
 
 Each size shows different data, so pick the one that fits your README:
 
-- **`small`:** a portrait card with the critter on top, and its name, mood, fullness and streak below. Good for floating beside your intro with `<p align="right">`.
+- **`small`:** a portrait card with the critter on top, and its name, mood, fullness and streak below. Pair it with `float: right` to sit beside your intro.
 - **`medium`** (default): the critter with all of today's stats.
 - **`full`:** everything in `medium`, plus a bar chart of what it ate over the last 7 days and its lifetime total. Spans the full width of the README.
 
