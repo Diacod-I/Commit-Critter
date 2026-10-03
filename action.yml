@@ -14,7 +14,7 @@ inputs:
     default: light
   size:
     description: "Card size: small (portrait, stats below), medium, or full (README-wide, with a 7-day chart)"
-    default: medium
+    default: full
   pet-name:
     description: "Your critter's name (defaults to one per species)"
     default: ""
