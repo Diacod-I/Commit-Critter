@@ -85,6 +85,34 @@ class CritterTest(unittest.TestCase):
             del os.environ["CRITTER_THEME"]
         self.assertIn(c.sprites.PANEL["light"]["F"], Path(".critter/critter.svg").read_text())
 
+    def test_history_keeps_the_last_seven_days(self):
+        for i, day in enumerate(self.days(9)):
+            c, _ = self.run_day(day, i)
+        self.assertEqual(c.load()["history"], [2, 3, 4, 5, 6, 7, 8])
+
+    def test_sizes(self):
+        import xml.etree.ElementTree as ET
+        import sprites
+        for size, width in (("small", "264"), ("medium", "576"), ("full", "100%")):
+            os.environ["CRITTER_SIZE"] = size
+            try:
+                Path(".critter/state.json").unlink(missing_ok=True)
+                self.run_day("2026-01-01", 3)
+            finally:
+                del os.environ["CRITTER_SIZE"]
+            self.assertIn(f'width="{width}"', Path("README.md").read_text(), size)
+            card = ET.fromstring(Path(".critter/critter.svg").read_text())
+            w, h = sprites.SIZES[size]
+            self.assertEqual(card.get("viewBox"), f"0 0 {w} {h}", size)
+
+    def test_unknown_size_falls_back_to_medium(self):
+        os.environ["CRITTER_SIZE"] = "huge"
+        try:
+            self.run_day("2026-01-01", 1)
+        finally:
+            del os.environ["CRITTER_SIZE"]
+        self.assertIn('width="576"', Path("README.md").read_text())
+
     def test_trophies_page_exists_from_day_one(self):
         self.run_day("2026-01-01", 1)
         self.assertIn("No trophies yet", Path(".critter/trophies.md").read_text())

@@ -106,6 +106,14 @@ def theme():
     return t
 
 
+def size():
+    z = (ENV("CRITTER_SIZE") or "medium").strip().lower()
+    if z not in sprites.SIZES:
+        warn(f"unknown size '{z}', using medium. Options: {', '.join(sprites.SIZES)}")
+        z = "medium"
+    return z
+
+
 def pet_name():
     return (ENV("CRITTER_NAME") or "").strip() or SPECIES[species()]["default_name"]
 
@@ -166,10 +174,14 @@ def describe(s):
             f"(best {s['best_streak']}d), age {s['age']}d.")
 
 
+# README width for each card size: whole screen pixels per art pixel keep it crisp; full spans the README.
+DISPLAY_WIDTH = {"small": "264", "medium": "576", "full": "100%"}
+
+
 def block(s):
     home = HOME.as_posix()
     return f"""{START}
-<img src="{home}/critter.svg" width="576" alt="{html.escape(describe(s))}">
+<img src="{home}/critter.svg" width="{DISPLAY_WIDTH[size()]}" alt="{html.escape(describe(s))}">
 
 <sub>[diary]({home}/diary.md) · [trophies]({home}/trophies.md) · fed daily with my real GitHub activity by [Commit Critter](https://github.com/{ACTION_REPO}). No work, no food.</sub>
 {END}"""
@@ -178,8 +190,11 @@ def block(s):
 def render(s):
     HOME.mkdir(exist_ok=True)
     stats = {"name": pet_name(), "species": species(), "hunger": s["hunger"], "food_today": s["food_today"],
-             "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"]}
-    (HOME / "critter.svg").write_text(sprites.svg(species(), mood(s), title=describe(s), stats=stats, theme=theme()))
+             "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"], "total": s["total_food"],
+             # Critters fed before history was kept only know about today.
+             "history": s.get("history") or ([s["food_today"]] if s["age"] else [])}
+    (HOME / "critter.svg").write_text(
+        sprites.svg(species(), mood(s), title=describe(s), stats=stats, theme=theme(), size=size()))
     trophies = HOME / "trophies.md"
     if not trophies.exists():  # the README links here from day one
         trophies.write_text("# Trophies\n\n" + NO_TROPHIES)
@@ -224,6 +239,7 @@ def feed():
         food = None
     s["age"] += 1
     s["last_fed"] = TODAY
+    s["history"] = (s.get("history", []) + [food or 0])[-7:]  # food per day, for the full card's chart
     name = pet_name()
     if food is None:
         s["food_today"] = 0
@@ -273,14 +289,18 @@ def trophy():
 def preview():
     out = Path(sys.argv[2])
     out.mkdir(parents=True, exist_ok=True)
-    demo = {"name": "Pebble", "species": "snail", "hunger": 0, "food_today": 6, "streak": 12, "best": 12, "age": 40}
+    demo = {"name": "Pebble", "species": "snail", "hunger": 0, "food_today": 6, "streak": 12, "best": 12,
+            "age": 40, "total": 163, "history": [3, 0, 5, 2, 4, 1, 6]}
     for th in sprites.THEMES:
         suffix = "" if th == "light" else f"-{th}"
         for sp in SPECIES:
             for m in MOODS:
                 (out / f"{sp}-{m}{suffix}.svg").write_text(sprites.svg(sp, m, title=f"{sp}, {m}", theme=th))
-        (out / f"card{suffix}.svg").write_text(
-            sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo, theme=th))
+        for z in sprites.SIZES:
+            name = "card" + ("" if z == "medium" else f"-{z}") + suffix
+            (out / f"{name}.svg").write_text(
+                sprites.svg("snail", "ecstatic", title="Pebble the snail, ecstatic", stats=demo, theme=th, size=z))
+
 
 if __name__ == "__main__":
     {"whoami": whoami, "feed": feed, "diary": diary, "trophy": trophy, "preview": preview}[sys.argv[1]]()
