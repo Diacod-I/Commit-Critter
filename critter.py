@@ -187,12 +187,16 @@ def block(s):
 {END}"""
 
 
+def history(s):
+    """Food per day, oldest first. Critters fed before history was kept only know their last day."""
+    return s.get("history") or ([s["food_today"]] if s["age"] else [])
+
+
 def render(s):
     HOME.mkdir(exist_ok=True)
     stats = {"name": pet_name(), "species": species(), "hunger": s["hunger"], "food_today": s["food_today"],
              "streak": s["real_streak"], "best": s["best_streak"], "age": s["age"], "total": s["total_food"],
-             # Critters fed before history was kept only know about today.
-             "history": s.get("history") or ([s["food_today"]] if s["age"] else [])}
+             "history": history(s)}
     (HOME / "critter.svg").write_text(
         sprites.svg(species(), mood(s), title=describe(s), stats=stats, theme=theme(), size=size()))
     trophies = HOME / "trophies.md"
@@ -237,9 +241,9 @@ def feed():
     except Exception as e:  # API trouble: still commit, don't reward or punish
         warn(f"couldn't read activity: {e}")
         food = None
+    s["history"] = (history(s) + [food or 0])[-7:]  # before age changes, so day 0 adds no fake entry
     s["age"] += 1
     s["last_fed"] = TODAY
-    s["history"] = (s.get("history", []) + [food or 0])[-7:]  # food per day, for the full card's chart
     name = pet_name()
     if food is None:
         s["food_today"] = 0
