@@ -90,6 +90,14 @@ class CritterTest(unittest.TestCase):
             c, _ = self.run_day(day, i)
         self.assertEqual(c.load()["history"], [2, 3, 4, 5, 6, 7, 8])
 
+    def test_history_starts_from_the_last_day_for_critters_fed_before_it_existed(self):
+        c, _ = self.run_day("2026-01-01", 5)
+        s = c.load()
+        del s["history"]
+        c.save(s)
+        c, _ = self.run_day("2026-01-02", 3)
+        self.assertEqual(c.load()["history"], [5, 3])
+
     def test_sizes(self):
         import xml.etree.ElementTree as ET
         import sprites
