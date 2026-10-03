@@ -15,6 +15,9 @@ inputs:
   size:
     description: "Card size: small (portrait, stats below), medium, or full (README-wide, with a 7-day chart)"
     default: full
+  width:
+    description: "Card width in the README, in pixels or a percentage (defaults to the size's own width)"
+    default: ""
   float:
     description: "Float the card beside your README's text: none, left, or right (pairs well with size: small)"
     default: none
@@ -51,6 +54,7 @@ runs:
         CRITTER_THEME: ${{ inputs.theme }}
         CRITTER_SIZE: ${{ inputs.size }}
         CRITTER_FLOAT: ${{ inputs.float }}
+        CRITTER_WIDTH: ${{ inputs.width }}
         CRITTER_README: ${{ inputs.readme }}
         CRITTER_USER: ${{ inputs.github-user }}
         CRITTER_AUTHOR_NAME: ${{ inputs.author-name }}
