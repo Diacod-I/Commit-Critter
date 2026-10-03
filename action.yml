@@ -15,6 +15,9 @@ inputs:
   size:
     description: "Card size: small (portrait, stats below), medium, or full (README-wide, with a 7-day chart)"
     default: full
+  float:
+    description: "Float the card beside your README's text: none, left, or right (pairs well with size: small)"
+    default: none
   pet-name:
     description: "Your critter's name (defaults to one per species)"
     default: ""
@@ -47,6 +50,7 @@ runs:
         CRITTER_NAME: ${{ inputs.pet-name }}
         CRITTER_THEME: ${{ inputs.theme }}
         CRITTER_SIZE: ${{ inputs.size }}
+        CRITTER_FLOAT: ${{ inputs.float }}
         CRITTER_README: ${{ inputs.readme }}
         CRITTER_USER: ${{ inputs.github-user }}
         CRITTER_AUTHOR_NAME: ${{ inputs.author-name }}
