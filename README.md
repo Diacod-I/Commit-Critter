@@ -102,7 +102,7 @@ Activity in the critter's own repo is ignored, so it can't feed itself. If GitHu
 ## FAQ
 
 **Isn't this just a streak bot?**
-Partly, and it says so: the commits keep your graph green. What's different is that the critter tells the truth. Your graph can be green while your snail is clearly starving in its shell. It's a small daily nudge to go do something real.
+Partly. The critter-generated commits keep your graph green. What's different is that the critter tells the truth. Your graph can be green while your snail is clearly starving in its shell. It's a small daily nudge to go do something real.
 
 **Will the commits count on my contribution graph?**
 Yes, if the repo is public (or you've enabled private contributions) and the commits land on the default branch. By default they're authored as `<id>+<login>@users.noreply.github.com`, which GitHub always links to your account.
